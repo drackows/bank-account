@@ -1,0 +1,59 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>eu.inparsys.examples.bank</groupId>
+    <artifactId>parent</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+    <name>Bank example</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <revision>1.0-SNAPSHOT</revision>
+        <maven.compiler.release>17</maven.compiler.release>
+    </properties>
+
+    <modules>
+        <module>common</module>
+        <module>account-adapters</module>
+        <module>account-domain</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.spockframework</groupId>
+                <artifactId>spock-bom</artifactId>
+                <version>2.3-groovy-4.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>eu.inparsys.examples.bank</groupId>
+                <artifactId>common</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>eu.inparsys.examples.bank</groupId>
+                <artifactId>account-adapters</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>eu.inparsys.examples.bank</groupId>
+                <artifactId>account-domain</artifactId>
+                <version>${revision}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
