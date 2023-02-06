@@ -36,6 +36,7 @@ class Account {
     CreditLine creditLine;
 
     List<TransactionId> pendingTransactions = new ArrayList<>();
+    List<TransactionId> plannedTransactions = new ArrayList<>();
 
     Account() {
         this.id = new AccountId();
@@ -63,9 +64,10 @@ class Account {
     }
 
     /* TODO
-    Result rejectTransaction(RejectTransactionCommand command) {
-
-    }
+    Result rejectTransaction(RejectTransactionCommand command) {}
+    Result planTransaction(...) {}
+    Result cancelTransaction(...) {}
+    Result executeTransaction(...) {}
      */
 
     void dispatchEvent(final DomainOutgoingEvent event) {
