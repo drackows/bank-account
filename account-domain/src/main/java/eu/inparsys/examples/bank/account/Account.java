@@ -8,8 +8,6 @@ import eu.inparsys.examples.bank.account.events.outgoing.CreditLineSetUp;
 import eu.inparsys.examples.bank.common.Result;
 import eu.inparsys.examples.bank.common.event.DomainOutgoingEvent;
 import eu.inparsys.examples.bank.customer.CustomerId;
-import io.vavr.API;
-import io.vavr.Predicates;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,9 +18,6 @@ import org.javamoney.moneta.Money;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-
 @ToString
 @EqualsAndHashCode(of = "id")
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -31,11 +26,11 @@ public
 class Account {
 
     public static Account recreate(final List<DomainOutgoingEvent> events, Account account) {
-        return io.vavr.collection.List.ofAll(events)
-                .foldLeft(account, Account::dispatchEvent);
+        events.forEach(account::dispatchEvent);
+        return account;
     }
 
-    private final AccountId id;
+    final AccountId id;
     CustomerId ownerId;
     Money balance;
     CreditLine creditLine;
@@ -67,34 +62,43 @@ class Account {
         return success(new TransactionOrdered(id, new TransactionId(), command.recipient(), command.amount(), command.transferTitle()));
     }
 
-    Account handle(AccountRegisteredForCustomer event) {
-        return toBuilder()
-                .ownerId(event.getOwnerId())
-                .balance(event.getInitialDeposit())
-                .build();
+    /* TODO
+    Result rejectTransaction(RejectTransactionCommand command) {
+
+    }
+     */
+
+    void dispatchEvent(final DomainOutgoingEvent event) {
+        if (event instanceof AccountRegisteredForCustomer accountRegisteredForCustomer) {
+            handle(accountRegisteredForCustomer);
+        } else if (event instanceof CreditLineSetUp creditLineSetUp) {
+            handle(creditLineSetUp);
+        } else if (event instanceof TransactionOrdered transactionOrdered) {
+            handle(transactionOrdered);
+        }
     }
 
-    Account handle(CreditLineSetUp event) {
-        return toBuilder()
-                .creditLine(event.getCreditLine())
-                .build();
+    void handle(AccountRegisteredForCustomer event) {
+        ownerId = event.getOwnerId();
+        balance = event.getInitialDeposit();
     }
 
-    Account handle(TransactionOrdered event) {
-        final var pendingTransactions = new ArrayList<>(this.pendingTransactions);
+    void handle(CreditLineSetUp event) {
+        creditLine = event.getCreditLine();
+    }
+
+    void handle(TransactionOrdered event) {
+        balance = balance.subtract(event.getAmount());
         pendingTransactions.add(event.getTransactionId());
-        return toBuilder()
-                .balance(balance.subtract(event.getAmount()))
-                .pendingTransactions(pendingTransactions)
-                .build();
     }
 
     private boolean isCreditLineSetup() {
         return creditLine != null;
     }
 
-    private boolean isFundsSufficientFor(final Money command) {
-        return false;
+    private boolean isFundsSufficientFor(final Money transferAmount) {
+        //TODO implement
+        return true;
     }
 
     private boolean isRegisteredForAccount() {
@@ -104,13 +108,5 @@ class Account {
     private Result success(final DomainOutgoingEvent event) {
         dispatchEvent(event);
         return Result.success(event);
-    }
-
-    private Account dispatchEvent(final DomainOutgoingEvent event) {
-        return API.Match(event).of(
-                Case($(Predicates.instanceOf(AccountRegisteredForCustomer.class)), this::handle),
-                Case($(Predicates.instanceOf(CreditLineSetUp.class)), this::handle)
-                Case($(Predicates.instanceOf(TransactionOrdered.class)), this::handle)
-        );
     }
 }
