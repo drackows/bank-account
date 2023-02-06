@@ -6,7 +6,7 @@ import org.javamoney.moneta.Money;
 
 import java.util.Currency;
 
-public record CreateNewAccountCommand(
+public record RegisterNewAccountCommand(
         CustomerId ownerId,
         Currency currency,
         Money initialDeposit

@@ -15,10 +15,10 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @RequiredArgsConstructor(staticName = "of")
 @EqualsAndHashCode
-public class AccountId implements Serializable {
+public class TransactionId implements Serializable {
     private final UUID id;
 
-    public static AccountId newOne() {
-        return new AccountId(UUID.randomUUID());
+    public static TransactionId newOne() {
+        return new TransactionId(UUID.randomUUID());
     }
 }

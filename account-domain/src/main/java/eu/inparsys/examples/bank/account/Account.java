@@ -1,60 +1,116 @@
 package eu.inparsys.examples.bank.account;
 
-import eu.inparsys.examples.bank.account.commands.CreateNewAccountCommand;
-import eu.inparsys.examples.bank.account.commands.PlanTransactionCommand;
-import eu.inparsys.examples.bank.account.commands.PayInCacheCommand;
-import eu.inparsys.examples.bank.account.events.outgoing.AccountCreatedEvent;
+import eu.inparsys.examples.bank.account.commands.MakeTransactionCommand;
+import eu.inparsys.examples.bank.account.commands.RegisterNewAccountCommand;
+import eu.inparsys.examples.bank.account.commands.SetupCreditLineCommand;
+import eu.inparsys.examples.bank.account.events.outgoing.AccountRegisteredForCustomer;
+import eu.inparsys.examples.bank.account.events.outgoing.CreditLineSetUp;
+import eu.inparsys.examples.bank.common.Result;
 import eu.inparsys.examples.bank.common.event.DomainOutgoingEvent;
 import eu.inparsys.examples.bank.customer.CustomerId;
+import io.vavr.API;
+import io.vavr.Predicates;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.javamoney.moneta.Money;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
 
 @ToString
 @EqualsAndHashCode(of = "id")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PRIVATE, toBuilder = true)
+public
 class Account {
-    private UUID id;
+
+    public static Account recreate(final List<DomainOutgoingEvent> events, Account account) {
+        return io.vavr.collection.List.ofAll(events)
+                .foldLeft(account, Account::dispatchEvent);
+    }
+
+    private final AccountId id;
     CustomerId ownerId;
     Money balance;
+    CreditLine creditLine;
 
-    List<DomainOutgoingEvent> outgoingEvents = new ArrayList<>();
+    List<TransactionId> pendingTransactions = new ArrayList<>();
 
-    public static Account of(CreateNewAccountCommand command) {
-        final Account account = Account.builder()
-                .id(UUID.randomUUID())
-                .ownerId(command.ownerId())
-                .balance(command.initialDeposit())
+    Account() {
+        this.id = new AccountId();
+    }
+
+    Result register(RegisterNewAccountCommand command) {
+        if (isRegisteredForAccount()) {
+            return Result.failure("Account already registered");
+        }
+        return success(new AccountRegisteredForCustomer(id, command.ownerId(), command.initialDeposit()));
+    }
+
+    Result setupCreditLine(SetupCreditLineCommand command) {
+        if (isCreditLineSetup()) {
+            return Result.failure("Credit line already set up");
+        }
+        return success(new CreditLineSetUp(id, command.creditLine()));
+    }
+
+    Result makeTransaction(MakeTransactionCommand command) {
+        if (!isFundsSufficientFor(command.amount())) {
+            return Result.failure("Insufficient funds to make transfer: " + command.amount());
+        }
+        return success(new TransactionOrdered(id, new TransactionId(), command.recipient(), command.amount(), command.transferTitle()));
+    }
+
+    Account handle(AccountRegisteredForCustomer event) {
+        return toBuilder()
+                .ownerId(event.getOwnerId())
+                .balance(event.getInitialDeposit())
                 .build();
-        account.outgoingEvents.add(new AccountCreatedEvent());
-        return account;
     }
 
-    public void payInCache(PayInCacheCommand command) {
-
+    Account handle(CreditLineSetUp event) {
+        return toBuilder()
+                .creditLine(event.getCreditLine())
+                .build();
     }
 
-    public void planTransaction(PlanTransactionCommand command) {
-
+    Account handle(TransactionOrdered event) {
+        final var pendingTransactions = new ArrayList<>(this.pendingTransactions);
+        pendingTransactions.add(event.getTransactionId());
+        return toBuilder()
+                .balance(balance.subtract(event.getAmount()))
+                .pendingTransactions(pendingTransactions)
+                .build();
     }
 
-    public void makeTransaction(PlanTransactionCommand command) {
-
+    private boolean isCreditLineSetup() {
+        return creditLine != null;
     }
 
+    private boolean isFundsSufficientFor(final Money command) {
+        return false;
+    }
 
+    private boolean isRegisteredForAccount() {
+        return ownerId != null && balance != null;
+    }
 
-    public boolean isBalanceSufficientFor(Money amount) {
-        return balance.isGreaterThanOrEqualTo(amount);
+    private Result success(final DomainOutgoingEvent event) {
+        dispatchEvent(event);
+        return Result.success(event);
+    }
+
+    private Account dispatchEvent(final DomainOutgoingEvent event) {
+        return API.Match(event).of(
+                Case($(Predicates.instanceOf(AccountRegisteredForCustomer.class)), this::handle),
+                Case($(Predicates.instanceOf(CreditLineSetUp.class)), this::handle)
+                Case($(Predicates.instanceOf(TransactionOrdered.class)), this::handle)
+        );
     }
 }

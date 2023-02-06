@@ -17,4 +17,8 @@ import java.util.UUID;
 @EqualsAndHashCode
 public class CustomerId implements Serializable {
     private final UUID id;
+
+    public static CustomerId newOne() {
+        return new CustomerId(UUID.randomUUID());
+    }
 }
