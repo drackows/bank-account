@@ -32,8 +32,7 @@ class AccountBasicLogicTest extends Specification {
         def result = account.makeTransaction(new MakeTransactionCommand(new Recipient(Iban.random(), new NameAddress("addr3", [])), Money.of(200, EUR), "Title3"))
         then: "expect error"
         result.isFailure()
-        result.reason().contains "insufficient"
-
+        result.reason().contains "Insufficient"
     }
 
     private void given(DomainOutgoingEvent event) {

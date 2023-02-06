@@ -97,8 +97,7 @@ class Account {
     }
 
     private boolean isFundsSufficientFor(final Money transferAmount) {
-        //TODO implement
-        return true;
+        return balance.isGreaterThanOrEqualTo(transferAmount);
     }
 
     private boolean isRegisteredForAccount() {
