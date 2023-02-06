@@ -97,6 +97,10 @@ class Account {
     }
 
     private boolean isFundsSufficientFor(final Money transferAmount) {
+        //TODO fixme
+        if (isCreditLineSetup()) {
+            return balance.add(creditLine.getAmount()).isGreaterThanOrEqualTo(transferAmount);
+        }
         return balance.isGreaterThanOrEqualTo(transferAmount);
     }
 
