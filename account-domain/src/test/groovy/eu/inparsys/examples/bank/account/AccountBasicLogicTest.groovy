@@ -3,7 +3,6 @@ package eu.inparsys.examples.bank.account
 import eu.inparsys.examples.bank.account.commands.MakeTransactionCommand
 import eu.inparsys.examples.bank.account.commands.SetupCreditLineCommand
 import eu.inparsys.examples.bank.account.events.outgoing.AccountRegisteredForCustomer
-import eu.inparsys.examples.bank.common.Result
 import eu.inparsys.examples.bank.common.event.DomainOutgoingEvent
 import eu.inparsys.examples.bank.customer.CustomerId
 import org.iban4j.Iban
@@ -52,6 +51,15 @@ class AccountBasicLogicTest extends Specification {
 
         then:
         makeTransaction.isSuccessful()
+
+        and:
+        account.balance == Money.of(-50, EUR)
+
+        when: "more than credit line still not possible"
+        def makeTransactionBiggerThanCredit = account.makeTransaction(new MakeTransactionCommand(new Recipient(Iban.random(), new NameAddress("addr4", [])), Money.of(500, EUR), "Title4"))
+
+        then: "result is fail"
+        makeTransactionBiggerThanCredit.isFailure()
     }
 
     private void given(DomainOutgoingEvent event) {
