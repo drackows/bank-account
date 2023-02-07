@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.util.UUID;
 
 import static eu.inparsys.examples.bank.transaction.requests.TransactionsMapper.toDomain;
 
@@ -23,8 +24,8 @@ class TransactionController {
     private final MakeTransactionCommandHandler makeTransactionCommandHandler;
 
     @PostMapping
-    ResponseEntity<Void> makeTransaction(@RequestHeader("X-CUSTOMER-ID") CustomerId customerId, @RequestBody MakeTransactionRequest request) {
-        makeTransactionCommandHandler.handle(toDomain(customerId, request));
+    ResponseEntity<Void> makeTransaction(@RequestHeader("X-CUSTOMER-ID") String customerId, @RequestBody MakeTransactionRequest request) {
+        makeTransactionCommandHandler.handle(toDomain(new CustomerId(UUID.fromString(customerId)), request));
         return ResponseEntity.created(URI.create("http://localhost")).build();
     }
 }
