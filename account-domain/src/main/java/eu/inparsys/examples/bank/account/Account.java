@@ -14,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.javamoney.moneta.Money;
 
@@ -22,6 +23,7 @@ import java.util.List;
 
 @ToString
 @EqualsAndHashCode(of = "id")
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE, toBuilder = true)
 public
@@ -39,10 +41,6 @@ class Account {
 
     List<TransactionId> pendingTransactions = new ArrayList<>();
     List<TransactionId> plannedTransactions = new ArrayList<>();
-
-    Account() {
-        this.id = new AccountId();
-    }
 
     Result register(RegisterNewAccountCommand command) {
         if (isRegisteredForAccount()) {
@@ -73,7 +71,7 @@ class Account {
     Result executeTransaction(...) {}
      */
 
-    void dispatchEvent(final DomainOutgoingEvent event) {
+    void dispatchEvent(final DomainOutgoingEvent<?> event) {
         if (event instanceof AccountRegisteredForCustomer accountRegisteredForCustomer) {
             handle(accountRegisteredForCustomer);
         } else if (event instanceof CreditLineSetUp creditLineSetUp) {
@@ -101,6 +99,10 @@ class Account {
         return creditLine != null;
     }
 
+    public boolean isOwnedBy(final CustomerId customerId) {
+        return this.ownerId.equals(customerId);
+    }
+
     private boolean isFundsSufficientFor(final Money transferAmount) {
         //TODO fixme
         if (isCreditLineSetup()) {
@@ -113,7 +115,7 @@ class Account {
         return ownerId != null && balance != null;
     }
 
-    private Result success(final DomainOutgoingEvent event) {
+    private Result success(final DomainOutgoingEvent<?> event) {
         dispatchEvent(event);
         return Result.success(event);
     }

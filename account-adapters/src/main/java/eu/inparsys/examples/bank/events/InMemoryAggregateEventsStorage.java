@@ -1,4 +1,4 @@
-package eu.inparsys.examples.bank.account.event;
+package eu.inparsys.examples.bank.events;
 
 import eu.inparsys.examples.bank.common.event.DomainOutgoingEvent;
 
@@ -17,7 +17,7 @@ public class InMemoryAggregateEventsStorage<T> {
         mem.put(event.getAgregatId(), events);
     }
 
-    public List<DomainOutgoingEvent<T>> findAll(T id) {
+    public List<DomainOutgoingEvent<T>> findAllEvents(T id) {
         return mem.getOrDefault(id, Collections.emptyList());
     }
 }

@@ -1,0 +1,67 @@
+###
+POST http://localhost:8080/accounts
+Content-Type: application/json
+
+{
+  "ownerId": "1225129c-1e00-4f5d-83bc-3cec22259264",
+  "currency": "EUR",
+  "initialDeposit": {
+    "amount": 1000.00,
+    "currency": "EUR"
+  }
+}
+
+###
+GET http://localhost:8080/accounts
+Content-Type: application/json
+X-CUSTOMER-ID: 1225129c-1e00-4f5d-83bc-3cec22259264
+
+###
+PUT http://localhost:8080/accounts/c43f1a73-816e-4c8a-9739-b8da4f77a6cf/credit-line
+Content-Type: application/json
+X-CUSTOMER-ID: 1225129c-1e00-4f5d-83bc-3cec22259264
+
+{
+  "amount": {
+    "amount": 1300.00,
+    "currency": "EUR"
+  }
+}
+
+###
+GET http://localhost:8080/accounts
+Content-Type: application/json
+X-CUSTOMER-ID: 1225129c-1e00-4f5d-83bc-3cec22259264
+
+###
+POST http://localhost:8080/transactions
+Content-Type: application/json
+X-CUSTOMER-ID: 1225129c-1e00-4f5d-83bc-3cec22259264
+
+{
+  "accountId": "c43f1a73-816e-4c8a-9739-b8da4f77a6cf",
+  "recipient": {
+    "accountNumber": "PL10105000997603123456789123",
+    "nameAndAddress": {
+      "name": "John",
+      "address": [
+        "ul. Towarowa 1",
+        "01-234 Warszawa"
+      ]
+    }
+  },
+  "amount": {
+    "amount": 700.00,
+    "currency": "EUR"
+  },
+  "transferTitle": "Transfer title"
+}
+
+###
+GET http://localhost:8080/accounts
+Content-Type: application/json
+X-CUSTOMER-ID: 1225129c-1e00-4f5d-83bc-3cec22259264
+
+###
+GET http://localhost:8080/accounts/red-accounts
+Content-Type: application/json

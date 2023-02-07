@@ -8,7 +8,7 @@ import java.util.Currency;
 
 @Data
 public class CreateAccountRequest {
-    private String ownerId;
+    private CustomerId ownerId;
     private Currency currency;
     private Money initialDeposit;
 }
