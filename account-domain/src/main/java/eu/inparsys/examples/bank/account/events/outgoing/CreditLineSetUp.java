@@ -11,7 +11,7 @@ import org.javamoney.moneta.Money;
 import java.util.UUID;
 
 @Value
-public class CreditLineSetUp implements DomainOutgoingEvent {
+public class CreditLineSetUp implements DomainOutgoingEvent<AccountId> {
     UUID eventId = UUID.randomUUID();
     AccountId agregatId;
     CreditLine creditLine;

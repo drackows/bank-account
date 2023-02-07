@@ -5,9 +5,11 @@ import eu.inparsys.examples.bank.account.commands.RegisterNewAccountCommand;
 import eu.inparsys.examples.bank.account.commands.SetupCreditLineCommand;
 import eu.inparsys.examples.bank.account.events.outgoing.AccountRegisteredForCustomer;
 import eu.inparsys.examples.bank.account.events.outgoing.CreditLineSetUp;
+import eu.inparsys.examples.bank.account.events.outgoing.TransactionOrdered;
 import eu.inparsys.examples.bank.common.Result;
 import eu.inparsys.examples.bank.common.event.DomainOutgoingEvent;
 import eu.inparsys.examples.bank.customer.CustomerId;
+import eu.inparsys.examples.bank.transaction.TransactionId;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,7 +27,7 @@ import java.util.List;
 public
 class Account {
 
-    public static Account recreate(final List<DomainOutgoingEvent> events, Account account) {
+    public static Account recreate(final List<? extends DomainOutgoingEvent<AccountId>> events, Account account) {
         events.forEach(account::dispatchEvent);
         return account;
     }
@@ -64,8 +66,9 @@ class Account {
     }
 
     /* TODO
-    Result rejectTransaction(RejectTransactionCommand command) {}
+    Result receiveTransaction(...) {}
     Result planTransaction(...) {}
+    Result rejectTransaction(RejectTransactionCommand command) {}
     Result cancelTransaction(...) {}
     Result executeTransaction(...) {}
      */
@@ -101,7 +104,7 @@ class Account {
     private boolean isFundsSufficientFor(final Money transferAmount) {
         //TODO fixme
         if (isCreditLineSetup()) {
-            return balance.add(creditLine.getAmount()).isGreaterThanOrEqualTo(transferAmount);
+            return balance.add(creditLine.amount()).isGreaterThanOrEqualTo(transferAmount);
         }
         return balance.isGreaterThanOrEqualTo(transferAmount);
     }

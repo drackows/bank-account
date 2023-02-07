@@ -1,13 +1,16 @@
-package eu.inparsys.examples.bank.account;
+package eu.inparsys.examples.bank.account.events.outgoing;
 
+import eu.inparsys.examples.bank.account.AccountId;
+import eu.inparsys.examples.bank.account.Recipient;
 import eu.inparsys.examples.bank.common.event.DomainOutgoingEvent;
+import eu.inparsys.examples.bank.transaction.TransactionId;
 import lombok.Value;
 import org.javamoney.moneta.Money;
 
 import java.util.UUID;
 
 @Value
-class TransactionOrdered implements DomainOutgoingEvent {
+public class TransactionOrdered implements DomainOutgoingEvent<AccountId> {
     UUID eventId = UUID.randomUUID();
     AccountId agregatId;
     TransactionId transactionId;

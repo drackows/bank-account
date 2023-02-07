@@ -9,7 +9,7 @@ import org.javamoney.moneta.Money;
 import java.util.UUID;
 
 @Value
-public class AccountRegisteredForCustomer implements DomainOutgoingEvent {
+public class AccountRegisteredForCustomer implements DomainOutgoingEvent<AccountId> {
     UUID eventId = UUID.randomUUID();
     AccountId agregatId;
     CustomerId ownerId;

@@ -3,8 +3,10 @@ package eu.inparsys.examples.bank.account
 import eu.inparsys.examples.bank.account.commands.MakeTransactionCommand
 import eu.inparsys.examples.bank.account.commands.SetupCreditLineCommand
 import eu.inparsys.examples.bank.account.events.outgoing.AccountRegisteredForCustomer
+import eu.inparsys.examples.bank.account.events.outgoing.TransactionOrdered
 import eu.inparsys.examples.bank.common.event.DomainOutgoingEvent
 import eu.inparsys.examples.bank.customer.CustomerId
+import eu.inparsys.examples.bank.transaction.TransactionId
 import org.iban4j.Iban
 import org.javamoney.moneta.Money
 import spock.lang.Specification

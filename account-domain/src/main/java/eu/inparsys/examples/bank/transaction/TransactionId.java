@@ -1,4 +1,4 @@
-package eu.inparsys.examples.bank.account;
+package eu.inparsys.examples.bank.transaction;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

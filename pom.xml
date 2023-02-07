@@ -18,6 +18,7 @@
         <module>common</module>
         <module>account-adapters</module>
         <module>account-domain</module>
+        <module>application</module>
     </modules>
 
     <dependencyManagement>
@@ -26,6 +27,13 @@
                 <groupId>org.spockframework</groupId>
                 <artifactId>spock-bom</artifactId>
                 <version>2.3-groovy-4.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>3.0.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -53,6 +61,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
