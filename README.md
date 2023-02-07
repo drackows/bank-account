@@ -1,0 +1,11 @@
+TODO:
+- execute transaction (and do incoming transfers)
+- plan and cancel planned transactions
+- reject transaction
+- validations (requests/commands) 
+- covering exception better when something is already set up or data is incorrect
+- transactions
+- unit tests
+- integration tests
+- non-in-memory implementation of storage
+- snapshotting for aggregates
